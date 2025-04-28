@@ -1,0 +1,268 @@
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+// Interface
+interface Schedulable {
+    String scheduleInfo();
+    int flightDuration(); // dalam menit
+}
+
+// Abstract class
+abstract class Flight {
+    private String departureTime;
+    private String arrivalTime;
+    private String airlineName;
+    protected final String airlineType; // final attribute
+    private String departureLocation;
+    private String arrivalLocation;
+
+    public Flight(String departureTime, String arrivalTime, String airlineName, String airlineType, String departureLocation, String arrivalLocation) {
+        this.departureTime = departureTime;
+        this.arrivalTime = arrivalTime;
+        this.airlineName = airlineName;
+        this.airlineType = airlineType;
+        this.departureLocation = departureLocation;
+        this.arrivalLocation = arrivalLocation;
+    }
+
+    public String getDepartureTime() {
+        return departureTime;
+    }
+
+    public void setDepartureTime(String departureTime) {
+        this.departureTime = departureTime;
+    }
+
+    public String getArrivalTime() {
+        return arrivalTime;
+    }
+
+    public String getAirlineName() {
+        return airlineName;
+    }
+
+    public void setAirlineName(String airlineName) {
+        this.airlineName = airlineName;
+    }
+
+    public final String getAirlineType() { // final method
+        return airlineType;
+    }
+
+    public String getDepartureLocation() {
+        return departureLocation;
+    }
+
+    public String getArrivalLocation() {
+        return arrivalLocation;
+    }
+
+    public abstract String getFlightType(); // abstract method
+
+    @Override
+    public String toString() {
+        return "Jadwal Penerbangan: " + departureTime + " - " + arrivalTime + "\n" +
+               "Pesawat: " + airlineName + " (" + airlineType + ")\n" +
+               "Rute: " + departureLocation + " -> " + arrivalLocation;
+    }
+}
+
+// Class CommercialFlight yang mengimplementasikan interface Schedulable
+class CommercialFlight extends Flight implements Schedulable {
+    private int passengerCapacity;
+
+    public CommercialFlight(String departureTime, String arrivalTime, String airlineName, String airlineType, String departureLocation, String arrivalLocation, int passengerCapacity) {
+        super(departureTime, arrivalTime, airlineName, airlineType, departureLocation, arrivalLocation);
+        this.passengerCapacity = passengerCapacity;
+    }
+
+    @Override
+    public String getFlightType() {
+        return "Komersial";
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "\nTipe: " + getFlightType() + "\nKapasitas Penumpang: " + passengerCapacity;
+    }
+
+    @Override
+    public String scheduleInfo() {
+        return "Penerbangan komersial dari " + getDepartureLocation() + " ke " + getArrivalLocation();
+    }
+
+    @Override
+    public int flightDuration() {
+        // Contoh simple: asumsi penerbangan komersial 2 jam
+        return 120;
+    }
+}
+
+// Class PrivateFlight yang juga mengimplementasikan interface Schedulable
+class PrivateFlight extends Flight implements Schedulable {
+    private String owner;
+
+    public PrivateFlight(String departureTime, String arrivalTime, String airlineName, String airlineType, String departureLocation, String arrivalLocation, String owner) {
+        super(departureTime, arrivalTime, airlineName, airlineType, departureLocation, arrivalLocation);
+        this.owner = owner;
+    }
+
+    @Override
+    public String getFlightType() {
+        return "Pribadi";
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "\nTipe: " + getFlightType() + "\nPemilik: " + owner;
+    }
+
+    @Override
+    public String scheduleInfo() {
+        return "Penerbangan pribadi milik " + owner + " dari " + getDepartureLocation() + " ke " + getArrivalLocation();
+    }
+
+    @Override
+    public int flightDuration() {
+        // Contoh simple: penerbangan pribadi 90 menit
+        return 90;
+    }
+}
+
+// Final class
+public final class FlightManagement {
+    static ArrayList<Flight> flights = new ArrayList<>();
+    static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        while (true) {
+            System.out.println("\nManajemen Penerbangan Pesawat");
+            System.out.println("1. Tambah Jadwal Pesawat");
+            System.out.println("2. Lihat Semua Jadwal");
+            System.out.println("3. Lihat Jadwal Tertentu (Polymorphism Overload)");
+            System.out.println("4. Hapus Jadwal Pesawat");
+            System.out.println("5. Keluar");
+            System.out.print("Pilih menu: ");
+
+            try {
+                int choice = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (choice) {
+                    case 1:
+                        addFlight();
+                        break;
+                    case 2:
+                        displayFlightInfo();
+                        break;
+                    case 3:
+                        System.out.print("Masukkan nomor jadwal yang ingin dilihat: ");
+                        int idx = scanner.nextInt();
+                        scanner.nextLine();
+                        displayFlightInfo(idx - 1); 
+                        break;
+                    case 4:
+                        deleteFlight();
+                        break;
+                    case 5:
+                        System.out.println("Anda telah keluar dari program.");
+                        return;
+                    default:
+                        System.out.println("Pilihan tidak valid. Coba lagi.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Input harus berupa angka!");
+                scanner.nextLine(); // membersihkan buffer
+            }
+        }
+    }
+
+    static void addFlight() {
+        try {
+            System.out.println("Pilih jenis penerbangan:");
+            System.out.println("1. Komersial");
+            System.out.println("2. Pribadi");
+            System.out.print("Pilihan: ");
+            int typeChoice = scanner.nextInt();
+            scanner.nextLine();
+
+            System.out.print("Masukkan Jam Berangkat: ");
+            String departureTime = scanner.nextLine();
+            System.out.print("Masukkan Jam Tiba: ");
+            String arrivalTime = scanner.nextLine();
+            System.out.print("Masukkan Nama Pesawat: ");
+            String airlineName = scanner.nextLine();
+            System.out.print("Masukkan Tipe Pesawat: ");
+            String airlineType = scanner.nextLine();
+            System.out.print("Masukkan Lokasi Keberangkatan: ");
+            String departureLocation = scanner.nextLine();
+            System.out.print("Masukkan Lokasi Kedatangan: ");
+            String arrivalLocation = scanner.nextLine();
+
+            if (typeChoice == 1) {
+                System.out.print("Masukkan Kapasitas Penumpang: ");
+                int passengerCapacity = scanner.nextInt();
+                flights.add(new CommercialFlight(departureTime, arrivalTime, airlineName, airlineType, departureLocation, arrivalLocation, passengerCapacity));
+            } else if (typeChoice == 2) {
+                System.out.print("Masukkan Nama Pemilik: ");
+                String owner = scanner.nextLine();
+                flights.add(new PrivateFlight(departureTime, arrivalTime, airlineName, airlineType, departureLocation, arrivalLocation, owner));
+            } else {
+                System.out.println("Pilihan tidak valid!");
+            }
+
+            System.out.println("Jadwal pesawat berhasil ditambahkan.");
+        } catch (InputMismatchException e) {
+            System.out.println("Input salah, pastikan angka diisi dengan benar.");
+            scanner.nextLine(); // membersihkan buffer
+        }
+    }
+
+    static void displayFlightInfo() {
+        if (flights.isEmpty()) {
+            System.out.println("Tidak ada jadwal penerbangan.");
+            return;
+        }
+        for (int i = 0; i < flights.size(); i++) {
+            System.out.println((i + 1) + ".\n" + flights.get(i));
+            if (flights.get(i) instanceof Schedulable) {
+                Schedulable s = (Schedulable) flights.get(i);
+                System.out.println("Info Jadwal: " + s.scheduleInfo());
+                System.out.println("Durasi Penerbangan: " + s.flightDuration() + " menit");
+            }
+            System.out.println("------------------------");
+        }
+    }
+
+    static void displayFlightInfo(int index) {
+        if (index >= 0 && index < flights.size()) {
+            System.out.println("Detail Jadwal:\n" + flights.get(index));
+        } else {
+            System.out.println("Index tidak valid.");
+        }
+    }
+
+    static void deleteFlight() {
+        if (flights.isEmpty()) {
+            System.out.println("Tidak ada jadwal yang bisa dihapus.");
+            return;
+        }
+        displayFlightInfo();
+        System.out.print("Pilih nomor jadwal yang ingin dihapus: ");
+        try {
+            int index = scanner.nextInt() - 1;
+            scanner.nextLine();
+
+            if (index >= 0 && index < flights.size()) {
+                flights.remove(index);
+                System.out.println("Jadwal berhasil dihapus.");
+            } else {
+                System.out.println("Nomor tidak valid.");
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Input harus berupa angka.");
+            scanner.nextLine(); // bersihkan buffer
+        }
+    }
+}
